@@ -68,7 +68,7 @@ export default function Drone() {
         // Card is on the LEFT, so drone moves RIGHT
         // ─────────────────────────────────────────────────
         tl.to(droneRef.current.position, {
-            x: 3, y: 0.5, z: 1,
+            x: 8, y: 0.5, z: 1,
             ease: 'power2.inOut'
         }, 0.18)
         tl.to(droneRef.current.rotation, {
