@@ -3,7 +3,9 @@
 <h1>ABYSSAL X-1</h1>
 <p><strong>A cinematic, scroll-driven 3D product experience for an underwater drone.</strong></p>
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.1-black?logo=next.js)](https://nextjs.org)
+### [🔗 View Live Experience](https://abyssalx-1.netlify.app/)
+
+[![Next.js](https://img.shields.io/badge/Next.js-16.1-black?logo=next.js)](https://nextjs.org)
 [![Three.js](https://img.shields.io/badge/Three.js-0.173-black?logo=three.js)](https://threejs.org)
 [![React Three Fiber](https://img.shields.io/badge/R3F-9.0-blueviolet)](https://docs.pmnd.rs/react-three-fiber)
 [![GSAP](https://img.shields.io/badge/GSAP-3.12-88CE02?logo=greensock)](https://gsap.com)
