@@ -1,26 +1,24 @@
 'use client'
 
-import { useRef, useMemo } from 'react'
+import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 
+// Generate random fish data once outside the render cycle
+const FISH_DATA = Array.from({ length: 20 }).map(() => ({
+    position: new THREE.Vector3(
+        (Math.random() - 0.5) * 40,
+        (Math.random() - 0.5) * 10 - 2,
+        (Math.random() - 0.5) * 20 - 10
+    ),
+    speed: 0.01 + Math.random() * 0.02,
+    size: 0.1 + Math.random() * 0.3,
+}))
+
 export default function MarineLife() {
     const groupRef = useRef<THREE.Group>(null)
-
-    // Generate random fish data
-    const fishData = useMemo(() => {
-        return Array.from({ length: 20 }).map(() => ({
-            position: new THREE.Vector3(
-                (Math.random() - 0.5) * 40,
-                (Math.random() - 0.5) * 10 - 2,
-                (Math.random() - 0.5) * 20 - 10
-            ),
-            speed: 0.01 + Math.random() * 0.02,
-            size: 0.1 + Math.random() * 0.3,
-        }))
-    }, [])
 
     useGSAP(() => {
         if (!groupRef.current) return
@@ -55,7 +53,7 @@ export default function MarineLife() {
     useFrame((state, delta) => {
         if (!groupRef.current) return
         groupRef.current.children.forEach((child, i) => {
-            const data = fishData[i]
+            const data = FISH_DATA[i]
             child.position.x += data.speed
             // Reset position if out of bounds
             if (child.position.x > 20) child.position.x = -20
@@ -67,7 +65,7 @@ export default function MarineLife() {
 
     return (
         <group ref={groupRef}>
-            {fishData.map((data, i) => (
+            {FISH_DATA.map((data, i) => (
                 <mesh key={i} position={data.position}>
                     <planeGeometry args={[data.size, data.size * 0.5]} />
                     <meshBasicMaterial

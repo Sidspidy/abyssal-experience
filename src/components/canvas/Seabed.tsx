@@ -5,6 +5,18 @@ import * as THREE from 'three'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 
+// Generate random rock data once outside the component tree
+// This bypasses the react-hooks/purity rule since it's not during a component render call
+const ROCK_DATA = Array.from({ length: 20 }).map(() => ({
+    position: [
+        (Math.random() - 0.5) * 40,
+        -0.5 + Math.random(),
+        (Math.random() - 0.5) * 40
+    ] as [number, number, number],
+    rotation: [Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI] as [number, number, number],
+    scale: 0.5 + Math.random() * 2
+}))
+
 export default function Seabed() {
     const groupRef = useRef<THREE.Group>(null)
 
@@ -35,16 +47,12 @@ export default function Seabed() {
             </mesh>
 
             {/* 3D Jagged Rocks scattered across the seabed */}
-            {Array.from({ length: 20 }).map((_, i) => (
+            {ROCK_DATA.map((rock, i) => (
                 <mesh
                     key={i}
-                    position={[
-                        (Math.random() - 0.5) * 40,
-                        -0.5 + Math.random(),
-                        (Math.random() - 0.5) * 40
-                    ]}
-                    rotation={[Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI]}
-                    scale={0.5 + Math.random() * 2}
+                    position={rock.position}
+                    rotation={rock.rotation}
+                    scale={rock.scale}
                     castShadow
                     receiveShadow
                 >

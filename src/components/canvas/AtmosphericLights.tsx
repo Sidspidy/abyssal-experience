@@ -6,6 +6,14 @@ import * as THREE from 'three'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 
+// Move data generation outside to keep render pure
+const RAY_DATA = Array.from({ length: 20 }).map(() => ({
+    position: [(Math.random() - 0.5) * 20, 10, (Math.random() - 0.5) * 15] as [number, number, number],
+    rotation: [0.2, 0, (Math.random() - 0.5) * 1] as [number, number, number],
+    args: [0.5 + Math.random(), 30] as [number, number],
+    opacity: 0.2 + Math.random() * 0.2
+}))
+
 export default function AtmosphericLights() {
     const groupRef = useRef<THREE.Group>(null)
 
@@ -36,17 +44,17 @@ export default function AtmosphericLights() {
     return (
         <group ref={groupRef}>
             {/* God-rays (Increased intensity and density) */}
-            {Array.from({ length: 20 }).map((_, i) => (
+            {RAY_DATA.map((ray, i) => (
                 <mesh
                     key={i}
-                    position={[(Math.random() - 0.5) * 20, 10, (Math.random() - 0.5) * 15]}
-                    rotation={[0.2, 0, (Math.random() - 0.5) * 1]}
+                    position={ray.position}
+                    rotation={ray.rotation}
                 >
-                    <planeGeometry args={[0.5 + Math.random(), 30]} />
+                    <planeGeometry args={ray.args} />
                     <meshBasicMaterial
                         color="#ffffff"
                         transparent
-                        opacity={0.2 + Math.random() * 0.2}
+                        opacity={ray.opacity}
                         side={THREE.DoubleSide}
                         blending={THREE.AdditiveBlending}
                     />

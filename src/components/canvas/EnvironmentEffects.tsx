@@ -9,22 +9,21 @@ import { useGSAP } from '@gsap/react'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Generate initial particle locations outside the render loop
+const COUNT = 150
+const PARTICLE_DATA = Array.from({ length: COUNT }, () => ({
+    position: new THREE.Vector3(
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 20
+    ),
+    speed: (Math.random() + 0.5) * 0.01,
+    type: Math.random() > 0.5 ? 'bubble' : 'snow'
+}))
+
 export default function EnvironmentEffects() {
     const { scene } = useThree()
 
-    const [particleData] = useState(() => {
-        const count = 150
-        return Array.from({ length: count }, () => ({
-            position: new THREE.Vector3(
-                (Math.random() - 0.5) * 20,
-                (Math.random() - 0.5) * 20,
-                (Math.random() - 0.5) * 20
-            ),
-            speed: (Math.random() + 0.5) * 0.01,
-            type: Math.random() > 0.5 ? 'bubble' : 'snow'
-        }))
-    })
-    const particlesCount = particleData.length
     const particlesRef = useRef<THREE.InstancedMesh>(null)
     const dummy = useMemo(() => new THREE.Object3D(), [])
 
@@ -75,11 +74,11 @@ export default function EnvironmentEffects() {
         // 0.8 -> 1.0: Trench to Seabed (Pitch Black)
         tl.to(colorProxy, { r: 0, g: 0, b: 0, ease: 'none', onUpdate: updateColor }, 0.8)
 
-    }, { dependencies: [backgroundRef.current] })
+    }, []) // Accessing refs during render is illegal; empty deps is fine as GSAP runs after mount
 
     useFrame(() => {
         if (!particlesRef.current) return
-        particleData.forEach((data, i) => {
+        PARTICLE_DATA.forEach((data, i) => {
             if (data.type === 'bubble') {
                 data.position.y += data.speed
                 if (data.position.y > 10) data.position.y = -10
@@ -100,7 +99,7 @@ export default function EnvironmentEffects() {
             <color ref={backgroundRef} attach="background" args={['#87CEEB']} />
             <fogExp2 ref={fogRef} attach="fog" args={['#87CEEB', 0.05]} />
 
-            <instancedMesh ref={particlesRef} args={[undefined, undefined, particlesCount]}>
+            <instancedMesh ref={particlesRef} args={[undefined, undefined, COUNT]}>
                 <sphereGeometry args={[0.02, 8, 8]} />
                 <meshBasicMaterial color="#ffffff" transparent opacity={0.4} />
             </instancedMesh>
