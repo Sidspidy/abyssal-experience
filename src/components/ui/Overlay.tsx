@@ -11,6 +11,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 export default function Overlay() {
     const depthRef = useRef<HTMLSpanElement>(null)
+    const depthBarRef = useRef<HTMLDivElement>(null)
 
     useGSAP(() => {
         const depth = { value: 0 }
@@ -28,6 +29,9 @@ export default function Overlay() {
                         const currentDepth = Math.floor(self.progress * 1000)
                         depthRef.current.innerText = `${currentDepth}m`
                     }
+                    if (depthBarRef.current) {
+                        depthBarRef.current.style.transform = `scaleX(${self.progress})`
+                    }
                 }
             }
         })
@@ -39,13 +43,11 @@ export default function Overlay() {
             {/* Sticky Header */}
             <Header />
 
-            {/* HUD - Fixed Depth Gauge */}
-            <div className="fixed top-10 right-10 z-50 flex flex-col items-end opacity-80">
-                <p className="text-[10px] uppercase tracking-[0.3em] font-medium text-white/40 mb-1">Current Depth</p>
-                <span ref={depthRef} className="text-4xl font-mono font-bold text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.4)]">
-                    0m
-                </span>
-                <div className="w-16 h-[2px] bg-cyan-400 mt-2 origin-right scale-x-50" />
+            {/* ── HUD: Depth Gauge ──────────────────────────────────────── */}
+            <div className="fixed right-6 top-20 z-50 flex flex-col items-end pointer-events-none">
+                <p className="hud-depth-label mb-1">Current Depth</p>
+                <span ref={depthRef} className="hud-depth-value">0m</span>
+                <div className="hud-amber-bar" ref={depthBarRef} style={{ transformOrigin: 'left', transform: 'scaleX(0)', transition: 'none' }} />
             </div>
 
             {/* ═══════════════════════════════════════════════════
@@ -54,163 +56,326 @@ export default function Overlay() {
             <HeroSection />
 
             {/* ═══════════════════════════════════════════════════
-                Stage 2: The Shallows — Material & Build (RIGHT card)
+                Stage 2: The Shallows (0–50m)
+                Layout: card on LEFT half, drone clear zone on RIGHT
                ═══════════════════════════════════════════════════ */}
-            <section className="h-screen w-full flex items-center justify-end px-8 md:px-20 pointer-events-auto">
-                <div className="section-card max-w-md w-full p-8 md:p-10 text-right">
-                    {/* Section label */}
-                    <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-400 font-semibold mb-3">
-                        Depth: 0–50m
-                    </p>
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">
-                        The Shallows
+            <section
+                id="materials"
+                className="h-screen w-full flex items-center px-6 md:px-14 pointer-events-auto"
+            >
+                {/* Card fills LEFT ~55% — drone floats in the RIGHT 45% */}
+                <div className="full-card w-full max-w-[52%] p-8 md:p-10 relative">
+                    {/* Watermark */}
+                    <span className="section-watermark" style={{ top: '-20px', left: '-10px' }}>01</span>
+
+                    {/* Depth badge */}
+                    <div className="depth-badge mb-5">0 – 50m</div>
+
+                    {/* Heading */}
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3 leading-[1.05]">
+                        The<br />Shallows
                     </h2>
-                    <p className="text-white/80 leading-relaxed mb-5 text-[15px]">
-                        Engineered with aerospace-grade titanium alloy and reinforced carbon fiber composites.
-                        Every seam pressure-tested to withstand 200 atmospheres.
+                    <p className="text-white/60 text-[15px] leading-relaxed mb-7 max-w-sm">
+                        Aerospace-grade titanium alloy and carbon-fiber composites form
+                        an exoskeleton pressure-tested to 200 atmospheres. Built to survive
+                        where other drones fail in the first 10 metres.
                     </p>
-                    <div className="flex flex-wrap gap-3 justify-end">
+
+                    {/* Spec Grid */}
+                    <div className="spec-grid mb-7">
+                        <div className="spec-grid-item">
+                            <p className="spec-grid-value">Ti-6Al-4V</p>
+                            <p className="spec-grid-label">Alloy Grade</p>
+                        </div>
+                        <div className="spec-grid-item">
+                            <p className="spec-grid-value">200 ATM</p>
+                            <p className="spec-grid-label">Pressure Rated</p>
+                        </div>
+                        <div className="spec-grid-item">
+                            <p className="spec-grid-value">IP68+</p>
+                            <p className="spec-grid-label">Seal Rating</p>
+                        </div>
+                        <div className="spec-grid-item">
+                            <p className="spec-grid-value">~0.92</p>
+                            <p className="spec-grid-label">Buoyancy Ratio</p>
+                        </div>
+                    </div>
+
+                    {/* Progress bars */}
+                    <div className="space-y-4 mb-7">
+                        <div>
+                            <div className="flex justify-between mb-1.5">
+                                <span className="text-white/40 text-[11px] uppercase tracking-wider">Tensile Strength</span>
+                                <span className="text-white/60 text-[11px]">95%</span>
+                            </div>
+                            <div className="progress-track">
+                                <div className="progress-fill" style={{ width: '95%' }} />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between mb-1.5">
+                                <span className="text-white/40 text-[11px] uppercase tracking-wider">Corrosion Resistance</span>
+                                <span className="text-white/60 text-[11px]">98%</span>
+                            </div>
+                            <div className="progress-track">
+                                <div className="progress-fill" style={{ width: '98%' }} />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between mb-1.5">
+                                <span className="text-white/40 text-[11px] uppercase tracking-wider">Weight Efficiency</span>
+                                <span className="text-white/60 text-[11px]">88%</span>
+                            </div>
+                            <div className="progress-track">
+                                <div className="progress-fill" style={{ width: '88%' }} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2">
                         <span className="spec-tag">Titanium Frame</span>
-                        <span className="spec-tag">IP68+ Sealed</span>
                         <span className="spec-tag">Anti-Corrosion</span>
+                        <span className="spec-tag">Carbon Composite</span>
+                        <span className="spec-tag">Mil-Spec Seals</span>
                     </div>
                 </div>
             </section>
 
             {/* ═══════════════════════════════════════════════════
-                Stage 3: Engineering Perfection (LEFT card)
+                Stage 3: Engineering Perfection (50–200m)
+                Layout: card on RIGHT half, drone clear zone on LEFT
                ═══════════════════════════════════════════════════ */}
-            <section className="h-screen w-full flex items-center justify-start px-8 md:px-20 pointer-events-auto">
-                <div className="section-card max-w-lg w-full p-8 md:p-10 text-left">
-                    <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-400 font-semibold mb-3">
-                        Depth: 50–200m
-                    </p>
-                    <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">
-                        Engineering Perfection
+            <section
+                id="engineering"
+                className="h-screen w-full flex items-center justify-end px-6 md:px-14 pointer-events-auto"
+            >
+                {/* Card fills RIGHT ~55% — drone floats in LEFT 45% */}
+                <div className="full-card w-full max-w-[52%] p-8 md:p-10 relative">
+                    {/* Watermark */}
+                    <span className="section-watermark" style={{ top: '-20px', right: '-10px', left: 'auto' }}>02</span>
+
+                    <div className="depth-badge mb-5">50 – 200m</div>
+
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-3 leading-[1.05]">
+                        Engineering<br />Perfection
                     </h2>
-                    <ul className="space-y-5">
-                        <li className="flex items-start space-x-4">
-                            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-                            <div>
-                                <span className="text-lg font-medium text-white">High-capacity modular battery</span>
-                                <p className="text-white/50 text-sm mt-1">72-hour continuous operation at full depth</p>
-                            </div>
-                        </li>
-                        <li className="flex items-start space-x-4">
-                            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-                            <div>
-                                <span className="text-lg font-medium text-white">Omnidirectional sonar array</span>
-                                <p className="text-white/50 text-sm mt-1">360° terrain mapping with 0.5m precision</p>
-                            </div>
-                        </li>
-                        <li className="flex items-start space-x-4">
-                            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-                            <div>
-                                <span className="text-lg font-medium text-white">Silent propulsion system</span>
-                                <p className="text-white/50 text-sm mt-1">Bio-inspired thruster design, &lt;20dB output</p>
-                            </div>
-                        </li>
-                        <li className="flex items-start space-x-4">
-                            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 mt-2 flex-shrink-0 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
-                            <div>
-                                <span className="text-lg font-medium text-white">AI-assisted navigation</span>
-                                <p className="text-white/50 text-sm mt-1">Real-time obstacle avoidance & path planning</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </section>
+                    <p className="text-white/60 text-[15px] leading-relaxed mb-7 max-w-sm">
+                        Every millimetre engineered for efficiency. Four independently
+                        vectored thrusters, each capable of its own directional thrust,
+                        grant 6-DoF freedom across all axes.
+                    </p>
 
-            {/* ═══════════════════════════════════════════════════
-                Stage 4: Into the Void — Twilight Zone (CENTER)
-               ═══════════════════════════════════════════════════ */}
-            <section className="h-screen w-full flex flex-col items-center justify-center px-6 pointer-events-auto">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-400/80 font-semibold mb-4">
-                    Depth: 200–500m
-                </p>
-                <h2 className="text-5xl md:text-6xl font-light tracking-widest text-cyan-200 drop-shadow-[0_0_25px_rgba(0,240,255,0.5)] text-center mb-6">
-                    INTO THE VOID
-                </h2>
-                <p className="text-lg md:text-xl text-cyan-100/80 max-w-2xl text-center leading-relaxed drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
-                    As light fades, true vision begins. The ABYSSAL X-1 activates its intelligent
-                    illumination array — 12,000 lumens of adaptive lighting that reveals
-                    what the ocean hides.
-                </p>
-                <div className="flex gap-6 mt-8">
-                    <div className="stat-pill">
-                        <span className="stat-value">12K</span>
-                        <span className="stat-label">Lumens</span>
+                    {/* Feature list */}
+                    <div className="mb-7">
+                        <div className="feature-row">
+                            <div className="feature-dot" />
+                            <div>
+                                <p className="text-white font-semibold text-[15px]">High-capacity modular battery</p>
+                                <p className="text-white/45 text-sm mt-0.5">72-hour continuous operation at rated depth</p>
+                            </div>
+                        </div>
+                        <div className="feature-row">
+                            <div className="feature-dot" />
+                            <div>
+                                <p className="text-white font-semibold text-[15px]">Omnidirectional sonar array</p>
+                                <p className="text-white/45 text-sm mt-0.5">360° terrain mapping with 0.5m precision</p>
+                            </div>
+                        </div>
+                        <div className="feature-row">
+                            <div className="feature-dot" />
+                            <div>
+                                <p className="text-white font-semibold text-[15px]">Silent propulsion system</p>
+                                <p className="text-white/45 text-sm mt-0.5">Bio-inspired thrusters — &lt; 20 dB output</p>
+                            </div>
+                        </div>
+                        <div className="feature-row">
+                            <div className="feature-dot" />
+                            <div>
+                                <p className="text-white font-semibold text-[15px]">AI-assisted navigation</p>
+                                <p className="text-white/45 text-sm mt-0.5">Real-time obstacle avoidance & path planning</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="stat-pill">
-                        <span className="stat-value">4K</span>
-                        <span className="stat-label">Camera</span>
-                    </div>
-                    <div className="stat-pill">
-                        <span className="stat-value">120°</span>
-                        <span className="stat-label">FOV</span>
+
+                    {/* Spec tags */}
+                    <div className="flex flex-wrap gap-2">
+                        <span className="spec-tag">6-DoF Control</span>
+                        <span className="spec-tag">72h Battery</span>
+                        <span className="spec-tag">Silent Prop</span>
+                        <span className="spec-tag">AI Nav</span>
                     </div>
                 </div>
             </section>
 
             {/* ═══════════════════════════════════════════════════
-                Stage 5: Built for the Impossible (CENTER)
+                Stage 4: Into the Void (200–500m)
+                Layout: wide centered dark card, drone above/behind
                ═══════════════════════════════════════════════════ */}
-            <section className="h-screen w-full flex flex-col items-center justify-center px-6 pointer-events-auto">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-400/60 font-semibold mb-4">
-                    Depth: 500–1000m+
-                </p>
-                <h2 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white text-center drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
-                    BUILT FOR THE
-                    <br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-400">
-                        IMPOSSIBLE
-                    </span>
-                </h2>
-                <p className="mt-8 text-lg md:text-xl font-medium tracking-widest text-white/70 uppercase text-center drop-shadow-[0_2px_15px_rgba(0,0,0,0.7)]">
-                    Withstanding crushing pressures at 1000m+
-                </p>
-                <div className="flex gap-6 mt-10">
-                    <div className="stat-pill">
-                        <span className="stat-value">1000m</span>
-                        <span className="stat-label">Max Depth</span>
+            <section
+                id="depths"
+                className="h-screen w-full flex flex-col items-center justify-end pb-16 px-6 pointer-events-auto"
+            >
+                <div className="full-card w-full max-w-3xl p-8 md:p-12 text-center relative">
+                    <span className="section-watermark" style={{ top: '-30px', left: '50%', transform: 'translateX(-50%)' }}>03</span>
+
+                    <div className="depth-badge mb-5 mx-auto" style={{ display: 'inline-flex' }}>200 – 500m</div>
+
+                    <h2 className="text-5xl md:text-6xl font-light tracking-[0.12em] uppercase text-white mb-4"
+                        style={{ textShadow: '0 0 40px rgba(0,240,255,0.3)' }}>
+                        Into the Void
+                    </h2>
+                    <p className="text-white/60 text-[15px] leading-relaxed mb-8 max-w-xl mx-auto">
+                        Where sunlight surrenders, the ABYSSAL X-1 activates its intelligent
+                        illumination array — 12,000 lumens of adaptive lighting, revealing
+                        what the ocean hs hidden for millennia.
+                    </p>
+
+                    {/* Stat row */}
+                    <div className="flex justify-center gap-4 mb-6">
+                        <div className="stat-pill">
+                            <span className="stat-value">12K</span>
+                            <span className="stat-label">Lumens</span>
+                        </div>
+                        <div className="stat-pill">
+                            <span className="stat-value">4K</span>
+                            <span className="stat-label">Camera</span>
+                        </div>
+                        <div className="stat-pill">
+                            <span className="stat-value">120°</span>
+                            <span className="stat-label">FOV</span>
+                        </div>
+                        <div className="stat-pill">
+                            <span className="stat-value">60fps</span>
+                            <span className="stat-label">Frame Rate</span>
+                        </div>
                     </div>
-                    <div className="stat-pill">
-                        <span className="stat-value">200</span>
-                        <span className="stat-label">ATM Rated</span>
+
+                    {/* Progress bars for vision specs */}
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-left">
+                        <div>
+                            <div className="flex justify-between mb-1.5">
+                                <span className="text-white/40 text-[11px] uppercase tracking-wider">Low-Light Acuity</span>
+                                <span className="text-white/50 text-[11px]">97%</span>
+                            </div>
+                            <div className="progress-track"><div className="progress-fill" style={{ width: '97%' }} /></div>
+                        </div>
+                        <div>
+                            <div className="flex justify-between mb-1.5">
+                                <span className="text-white/40 text-[11px] uppercase tracking-wider">Illumination Range</span>
+                                <span className="text-white/50 text-[11px]">85%</span>
+                            </div>
+                            <div className="progress-track"><div className="progress-fill" style={{ width: '85%' }} /></div>
+                        </div>
                     </div>
-                    <div className="stat-pill">
-                        <span className="stat-value">−2°C</span>
-                        <span className="stat-label">Operating</span>
+                </div>
+            </section>
+
+            {/* ═══════════════════════════════════════════════════
+                Stage 5: Built for the Impossible (500–1000m+)
+                Layout: cinematic typography center, drone low-left
+               ═══════════════════════════════════════════════════ */}
+            <section
+                id="impossible"
+                className="h-screen w-full flex flex-col items-center justify-center px-6 pointer-events-auto"
+            >
+                <div className="text-center relative">
+                    {/* Oversized background text */}
+                    <p className="text-[10px] uppercase tracking-[0.4em] text-amber-400/70 font-semibold mb-6">
+                        Depth: 500 – 1000m+
+                    </p>
+                    <h2 className="text-6xl md:text-8xl lg:text-[9rem] font-black tracking-tighter text-white leading-[0.9] mb-6"
+                        style={{ textShadow: '0 4px 60px rgba(0,0,0,0.9)' }}>
+                        BUILT FOR<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-cyan-400 to-blue-400">
+                            THE IMPOSSIBLE
+                        </span>
+                    </h2>
+                    <p className="text-white/50 text-lg tracking-widest uppercase mb-10"
+                        style={{ textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
+                        Withstanding crushing pressures at 1000m+
+                    </p>
+
+                    {/* Large stat row */}
+                    <div className="flex justify-center gap-5 flex-wrap">
+                        <div className="stat-pill">
+                            <span className="stat-value text-3xl">1000m</span>
+                            <span className="stat-label">Max Depth</span>
+                        </div>
+                        <div className="stat-pill">
+                            <span className="stat-value text-3xl">200</span>
+                            <span className="stat-label">ATM Rated</span>
+                        </div>
+                        <div className="stat-pill">
+                            <span className="stat-value text-3xl">−2°C</span>
+                            <span className="stat-label">Min Temp</span>
+                        </div>
+                        <div className="stat-pill">
+                            <span className="stat-value text-3xl">72h</span>
+                            <span className="stat-label">Endurance</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* ═══════════════════════════════════════════════════
                 Stage 6: Pre-Order / Footer
+                No card bg — drone & 3D scene fully visible behind
                ═══════════════════════════════════════════════════ */}
-            <section className="h-screen w-full flex flex-col justify-end pb-16 px-8 md:px-20 pointer-events-auto">
-                <div className="max-w-7xl mx-auto w-full">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 border-t border-white/15 pt-10">
+            <section
+                id="pre-order"
+                className="h-screen w-full flex flex-col items-center justify-end pb-12 px-6 md:px-14 pointer-events-auto"
+            >
+                <div className="w-full max-w-7xl mx-auto"
+                    style={{ borderTop: '1px solid rgba(255,255,255,0.12)', paddingTop: '32px' }}>
+
+                    {/* Main CTA row */}
+                    <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 mb-8">
                         <div>
-                            <p className="text-[11px] uppercase tracking-[0.3em] text-cyan-400 font-semibold mb-3">
-                                Available Q3 2026
-                            </p>
-                            <h2 className="text-4xl md:text-5xl font-bold mb-2 text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">
+                            <div className="depth-badge mb-4">Available Q3 2026</div>
+                            <h2 className="text-4xl md:text-6xl font-bold text-white mb-2 tracking-tight"
+                                style={{ textShadow: '0 4px 30px rgba(0,0,0,0.9)' }}>
                                 ABYSSAL X-1
                             </h2>
-                            <p className="text-white/60 mb-6 text-lg">Starting at $4,999</p>
-                            <div className="flex gap-4">
-                                <button className="bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-white/90 transition-all duration-300 uppercase tracking-wider text-sm hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                                    Pre-Order Now
-                                </button>
-                                <button className="border border-white/20 text-white px-8 py-4 rounded-full font-medium hover:bg-white/10 transition-all duration-300 uppercase tracking-wider text-sm">
-                                    View Specs
-                                </button>
-                            </div>
+                            <p className="text-white/55 text-lg"
+                                style={{ textShadow: '0 2px 12px rgba(0,0,0,0.7)' }}>
+                                Starting at <span className="text-white font-semibold">$4,999</span>
+                            </p>
                         </div>
 
-                        <div className="flex flex-col items-end gap-4">
-                            <div className="flex space-x-8 text-sm text-white/50 font-medium">
+                        <div className="flex flex-col gap-3">
+                            <button className="px-10 py-4 bg-white text-black font-bold text-sm tracking-[0.15em] uppercase rounded-full hover:bg-white/90 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] transition-all duration-300">
+                                Pre-Order Now
+                            </button>
+                            <button className="px-10 py-4 border border-white/30 text-white font-medium text-sm tracking-[0.15em] uppercase rounded-full hover:bg-white/10 hover:border-white/50 transition-all duration-300"
+                                style={{ backdropFilter: 'blur(8px)' }}>
+                                View Full Specs
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Spec strip + footer links */}
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+                        style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '20px' }}>
+
+                        {/* Inline spec list */}
+                        <div className="flex flex-wrap gap-x-8 gap-y-3">
+                            {[
+                                { v: '1000m', l: 'Max Depth' },
+                                { v: '72h', l: 'Battery' },
+                                { v: '4K/60', l: 'Video' },
+                                { v: '12K lm', l: 'Light' },
+                            ].map(({ v, l }) => (
+                                <div key={l}>
+                                    <p className="text-lg font-bold text-white" style={{ textShadow: '0 0 20px rgba(0,0,0,0.9)' }}>{v}</p>
+                                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/40">{l}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Footer links */}
+                        <div className="flex flex-col items-start md:items-end gap-3">
+                            <div className="flex space-x-6 text-sm text-white/40 font-medium">
                                 <a href="#" className="hover:text-cyan-400 transition-colors">Specs</a>
                                 <a href="#" className="hover:text-cyan-400 transition-colors">Gallery</a>
                                 <a href="#" className="hover:text-cyan-400 transition-colors">Support</a>
@@ -219,6 +384,7 @@ export default function Overlay() {
                             <p className="text-white/20 text-xs tracking-wider">© 2026 ABYSSAL. All rights reserved.</p>
                         </div>
                     </div>
+
                 </div>
             </section>
 
