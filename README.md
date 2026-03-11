@@ -170,7 +170,7 @@ npm run build
 npm start
 ```
 
-Deploy to [Vercel](https://vercel.com) with zero configuration — the project uses the Next.js App Router with no server-side dependencies.
+Deploy to [Netlify](https://www.netlify.com/) with zero configuration — the project uses the Next.js App Router with no server-side dependencies.
 
 ---
 
