@@ -1,9 +1,8 @@
 <div align="center">
 
-<h1>ABYSSAL X-1</h1>
-<p><strong>A cinematic, scroll-driven 3D product experience for an underwater drone.</strong></p>
+# Abyssal X-1
 
-### [🔗 View Live Experience](https://abyssalx-1.netlify.app/)
+**A cinematic, scroll-driven 3D product experience for an underwater drone.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.1-black?logo=next.js)](https://nextjs.org)
 [![Three.js](https://img.shields.io/badge/Three.js-0.173-black?logo=three.js)](https://threejs.org)
@@ -12,12 +11,38 @@
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38BDF8?logo=tailwindcss)](https://tailwindcss.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)](https://www.typescriptlang.org)
 
+</div>
+
 <br />
 
-![Abyssal Hero](https://github.com/Sidspidy/abyssal-experience/raw/main/public/next.svg)
+## 📖 Project Description
 
-> A premium product landing page that takes the viewer from the sky surface down to 1000m depth through a fully animated 3D environment. The drone reacts to every scroll. No libraries were faked — every visual effect is real-time.
+A premium product landing page that takes the viewer from the sky surface down to 1000m depth through a fully animated 3D environment. The drone reacts to every scroll. No libraries were faked — every visual effect is real-time. This cinematic experience showcases advanced scroll choreography, responsive Three.js visuals, and procedural 3D environments.
 
+---
+
+## 🔗 Live Demo
+
+**[View Live Experience](https://abyssalx-1.netlify.app/)**
+
+---
+
+## 🎥 Demo Video
+
+**[Watch the Demo Video](https://drive.google.com/file/d/1tkw_Isfm86UBS1755_8VueJhNYRVM2tC/view?usp=sharing)**
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+  <img src="screenshots/hero.png" width="800" alt="Hero Section" />
+  <br/><br/>
+  <img src="screenshots/scroll-animation.png" width="800" alt="Scroll Animation" />
+  <br/><br/>
+  <img src="screenshots/depth-hud.png" width="800" alt="Depth HUD" />
+  <br/><br/>
+  <img src="screenshots/deep-scene.png" width="800" alt="Deep Scene" />
 </div>
 
 ---
@@ -25,19 +50,19 @@
 ## ✨ Features
 
 - **Scroll-driven 3D drone animation** — GSAP `ScrollTrigger` scrubs a timeline that moves, rotates, and scales a real GLB model through 6 distinct cinematic poses.
-- **Section-aware choreography** — each content section has a designated "clear zone"; the drone parks in the open half to never overlap text.
-- **Cinematic post-processing** — Bloom, Noise via `@react-three/postprocessing` (Effect Composer).
+- **Section-aware choreography** — Each content section has a designated "clear zone"; the drone parks in the open half to never overlap text.
+- **Cinematic post-processing** — Bloom and Noise implemented via `@react-three/postprocessing` (Effect Composer).
 - **Atmospheric 3D environment** — Procedural beach, seabed, marine life silhouettes, and atmospheric lighting react to scroll depth.
-- **Amber depth HUD** — fixed depth gauge reads 0 → 1000m as you scroll; amber colour ensures readability on every background.
-- **Premium glass-morphism UI** — section cards with backdrop blur, cyan accent borders, section watermarks, spec grids, and progress bars.
-- **Fully reversible animation** — GSAP `scrub` auto-reverses all motion on scroll-up; no extra code.
-- **SSR-safe** — Three.js canvas is dynamically imported with `ssr: false`.
+- **Amber depth HUD** — Fixed depth gauge reads 0 → 1000m as you scroll; amber color ensures readability on every background.
+- **Premium glass-morphism UI** — Section cards with backdrop blur, cyan accent borders, section watermarks, spec grids, and progress bars.
+- **Fully reversible animation** — GSAP `scrub` auto-reverses all motion on scroll-up; no extra code needed.
+- **SSR-safe** — Three.js canvas is dynamically imported with `ssr: false` to avoid server/client hydration mismatches.
 
 ---
 
 ## 🏗️ Architecture
 
-```
+```text
 abyssal/
 ├── public/
 │   └── drone.glb              # Draco-compressed drone model (~38 MB)
@@ -65,9 +90,9 @@ abyssal/
             └── LoadingScreen.tsx
 ```
 
-### Layering model
+### Layering Model
 
-```
+```text
 ┌─────────────────────────────────────┐  z-index: 10  (pointer-events: auto)
 │          Overlay / HUD              │  Scrollable HTML + fixed UI
 ├─────────────────────────────────────┤  z-index: 0
@@ -100,7 +125,7 @@ The GSAP timeline uses sequential `to()` tweens (not `fromTo`) so initial values
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16.1 (App Router) |
 | 3D Engine | Three.js 0.173 + React Three Fiber 9 |
 | 3D Helpers | `@react-three/drei` (GLTFLoader, Float, Center, Environment) |
 | Post-processing | `@react-three/postprocessing` (Bloom, Noise) |
@@ -145,14 +170,14 @@ npm run build
 npm start
 ```
 
-Deploy to [Vercel](https://vercel.com) with zero configuration — the project uses Next.js App Router with no server-side dependencies.
+Deploy to [Vercel](https://vercel.com) with zero configuration — the project uses the Next.js App Router with no server-side dependencies.
 
 ---
 
-## 🔑 Key Implementation Notes
+## 🔑 Implementation Notes
 
-### Why `gsap.set()` before the timeline
-GSAP's `fromTo()` immediately renders every `from` state the moment the tween is added to a timeline. In a multi-tween timeline the **last** call wins, leaving the 3D object in the wrong pose on first load. The solution: use `gsap.set()` once to lock all initial values, then use `to()` exclusively so the timeline only drives forward/backward motion.
+### Why `gsap.set()` Before the Timeline
+GSAP's `fromTo()` immediately renders every `from` state the moment the tween is added to a timeline. In a multi-tween timeline, the **last** call wins, leaving the 3D object in the wrong pose on first load. The solution: use `gsap.set()` once to lock all initial values, then use `to()` exclusively so the timeline only drives forward/backward motion.
 
 ```ts
 // Lock initial state BEFORE timeline creation
@@ -163,32 +188,15 @@ gsap.set(droneRef.current.scale,    { x: 1.0,  y: 1.0, z: 1.0  })
 tl.to(droneRef.current.position, { x: 4.0, ... })
 ```
 
-### Why the depth gauge is amber
-The site background transitions from bright sky blue (`#5b9fc9`) to pitch black (`#020612`). `cyan-400` — the Three.js accent colour — becomes invisible in the shallow sections. Amber (`#f59e0b`) reads clearly on every depth.
+### Why the Depth Gauge is Amber
+The site background transitions from bright sky blue (`#5b9fc9`) to pitch black (`#020612`). `cyan-400` — the Three.js accent color — becomes invisible in the shallow sections. Amber (`#f59e0b`) reads clearly on every depth.
 
-### Canvas rendering settings
+### Canvas Rendering Settings
 ```ts
 gl={{ powerPreference: 'high-performance', alpha: false, antialias: false }}
 dpr={[1, 1.5]}
 ```
 `antialias: false` + capped DPR reduce GPU load since Bloom post-processing already smooths aliasing.
-
----
-
-## 📁 CSS Design System
-
-All tokens live in `globals.css`. Key classes:
-
-| Class | Purpose |
-|---|---|
-| `.full-card` | Wide glass panel with top-line accent and backdrop blur |
-| `.section-card` | Narrow content card with left cyan border |
-| `.depth-badge` | Amber pill with glowing dot — used for depth/availability labels |
-| `.spec-grid` | 2×2 metric grid inside cards |
-| `.progress-track / .progress-fill` | Animated spec comparison bars |
-| `.feature-row` | Feature list item with cyan dot and separator line |
-| `.hud-depth-value` | Amber monospace depth counter |
-| `.section-watermark` | Oversized muted background section number |
 
 ---
 
